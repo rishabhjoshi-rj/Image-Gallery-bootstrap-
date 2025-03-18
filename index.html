@@ -1,7 +1,51 @@
 <!DOCTYPE html>
 <html>  
    <!-- Checking Git Push -->
-     <!-- Checking Git Push -->
+     <!-- Checking Git Push 
+	import software.amazon.awssdk.auth.credentials.StsAssumeRoleCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class S3Controller {
+
+    @GetMapping("/invokes3")
+    public String readFromS3() {
+        // Assume the IAM role
+        StsClient stsClient = StsClient.builder()
+            .region(Region.US_EAST_1) // Replace with your region
+            .build();
+
+        StsAssumeRoleCredentialsProvider credentialsProvider =
+            StsAssumeRoleCredentialsProvider.builder()
+                .stsClient(stsClient)
+                .roleArn("arn:aws:iam::YOUR_ACCOUNT_ID:role/MySpringBootRole") // Role ARN
+                .roleSessionName("SpringBootAppSession")
+                .build();
+
+        // Create S3 client with assumed role credentials
+        S3Client s3 = S3Client.builder()
+            .region(Region.US_EAST_1) // Replace with your region
+            .credentialsProvider(credentialsProvider)
+            .build();
+
+        // Read file from S3
+        GetObjectRequest request = GetObjectRequest.builder()
+            .bucket("my-encrypted-bucket") // Your bucket name
+            .key("myfile.txt") // Your file name
+            .build();
+
+        String content = s3.getObjectAsBytes(request).asUtf8String(); // Read and decrypt file content
+        return content;
+    }
+}
+	
+	
+	-->
      <!-- Checking Git Push -->
 
 <head>
