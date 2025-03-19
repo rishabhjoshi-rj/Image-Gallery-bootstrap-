@@ -67,8 +67,152 @@ public class S3Controller {
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>sts</artifactId>
     </dependency>	
+	sd
+
+
+19
+
+	You're absolutely right! Creating two similar model classes (one for the request and one for the database) is unnecessary and can lead to code duplication. Instead, you can use a single model class for both purposes. This approach simplifies the code and ensures consistency between the request payload and the database schema.
+
+1. Single Model Class Approach
+You can use the existing NotesDataBean class for both:
+
+Request Payload: To accept data from the API.
+
+Database Operations: To map data to the database table.
+
+This eliminates the need for a separate NotesRequest class.
+
+2. Updated Code with Single Model Class
+Model Class (NotesDataBean)
+This class will represent both the request payload and the database entity.
+
+java
+Copy
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class NotesDataBean {
+    private String rn; // Optional, only if needed for fetch operations
+    private String interactionId;
+    private String taskNumber;
+    private String taskBegDate;
+    private String displayReason;
+    private String noteId;
+    private String noteType;
+    private String noteDate;
+    private String accountNumber;
+    private String userId;
+    private String requinfoPerminote;
+    private String channel;
+    private String userName;
+    private String actionsTaken;
+    private String additionalInformation;
+    private String noteSequence;
+    private String workflowNoteType;
+    private String userChannel;
+}
+Controller Class
+The controller will directly use NotesDataBean as the request body.
+
+java
+Copy
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/notes")
+public class NotesController {
+
+    @Autowired
+    private NotesService notesService;
+
+    @PostMapping("/save")
+    public ResponseEntity<String> saveNote(@RequestBody NotesDataBean notesDataBean) {
+        notesService.saveNote(notesDataBean);
+        return ResponseEntity.ok("Note saved successfully!");
+    }
+}
+Service Class
+The service will directly pass the NotesDataBean object to the repository.
+
+java
+Copy
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class NotesService {
+
+    @Autowired
+    private NotesRepository notesRepository;
+
+    public void saveNote(NotesDataBean notesDataBean) {
+        notesRepository.saveNote(notesDataBean);
+    }
+}
+Repository Class
+The repository will use the NotesDataBean object to execute the INSERT query.
+
+java
+Copy
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class NotesRepository {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private static final String INSERT_NOTES_DATA_QUERY = """
+        INSERT INTO NOTES_TABLE (
+            INTERACTION_ID, TASK_NUMBER, TASK_BEG_DATE, DISPLAY_REASON, NOTE_ID, NOTE_TYPE, NOTE_DATE, 
+            ACCOUNT_NUMBER, USER_ID, REQUINFO_PERMINOTE, CHANNEL, USER_NAME, ACTIONS_TAKEN, 
+            ADDITIONAL_INFORMATION, NOTE_SEQUENCE, WORKFLOW_NOTE_TYPE, USER_CHANNEL
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+    public void saveNote(NotesDataBean notesDataBean) {
+        jdbcTemplate.update(INSERT_NOTES_DATA_QUERY,
+            notesDataBean.getInteractionId(),
+            notesDataBean.getTaskNumber(),
+            notesDataBean.getTaskBegDate(),
+            notesDataBean.getDisplayReason(),
+            notesDataBean.getNoteId(),
+            notesDataBean.getNoteType(),
+            notesDataBean.getNoteDate(),
+            notesDataBean.getAccountNumber(),
+            notesDataBean.getUserId(),
+            notesDataBean.getRequinfoPerminote(),
+            notesDataBean.getChannel(),
+            notesDataBean.getUserName(),
+            notesDataBean.getActionsTaken(),
+            notesDataBean.getAdditionalInformation(),
+            notesDataBean.getNoteSequence(),
+            notesDataBean.getWorkflowNoteType(),
+            notesDataBean.getUserChannel()
+        );
+    }
+}
+
+
+
+
+
+
+
+
+
 	
 	-->
+
+
+
      <!-- Checking Git Push -->
 
 <head>
