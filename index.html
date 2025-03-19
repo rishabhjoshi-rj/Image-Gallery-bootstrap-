@@ -203,7 +203,70 @@ public class NotesRepository {
 
 
 
+Updated code -< using halper mapper class 
+	Mapper Class
+Create a class dedicated to mapping NotesDataBean to query parameters.
 
+java
+Copy
+import org.springframework.stereotype.Component;
+
+@Component
+public class NotesDataMapper {
+
+    public Object[] mapToInsertParams(NotesDataBean notesDataBean) {
+        return new Object[] {
+            notesDataBean.getInteractionId(),
+            notesDataBean.getTaskNumber(),
+            notesDataBean.getTaskBegDate(),
+            notesDataBean.getDisplayReason(),
+            notesDataBean.getNoteId(),
+            notesDataBean.getNoteType(),
+            notesDataBean.getNoteDate(),
+            notesDataBean.getAccountNumber(),
+            notesDataBean.getUserId(),
+            notesDataBean.getRequinfoPerminote(),
+            notesDataBean.getChannel(),
+            notesDataBean.getUserName(),
+            notesDataBean.getActionsTaken(),
+            notesDataBean.getAdditionalInformation(),
+            notesDataBean.getNoteSequence(),
+            notesDataBean.getWorkflowNoteType(),
+            notesDataBean.getUserChannel()
+        };
+    }
+}
+Updated Repository Class
+Inject the NotesDataMapper and use it in the saveNote method.
+
+java
+Copy
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class NotesRepository {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NotesDataMapper notesDataMapper;
+
+    private static final String INSERT_NOTES_DATA_QUERY = """
+        INSERT INTO NOTES_TABLE (
+            INTERACTION_ID, TASK_NUMBER, TASK_BEG_DATE, DISPLAY_REASON, NOTE_ID, NOTE_TYPE, NOTE_DATE, 
+            ACCOUNT_NUMBER, USER_ID, REQUINFO_PERMINOTE, CHANNEL, USER_NAME, ACTIONS_TAKEN, 
+            ADDITIONAL_INFORMATION, NOTE_SEQUENCE, WORKFLOW_NOTE_TYPE, USER_CHANNEL
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+    public void saveNote(NotesDataBean notesDataBean) {
+        Object[] params = notesDataMapper.mapToInsertParams(notesDataBean);
+        jdbcTemplate.update(INSERT_NOTES_DATA_QUERY, params);
+    }
+}
 
 
 
